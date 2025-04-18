@@ -1,4 +1,4 @@
-package com.derandecker.fetchdemoapp.viewmodel
+package com.derandecker.fetchdemoapp.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -83,7 +83,22 @@ class MainScreenViewModel : ViewModel() {
             _uiState.update {
                 it.copy(
                     loadingState = LoadingState.Success,
-                    itemList = body
+                    itemList = body.filter { item ->
+                        item.name != null && item.name != ""
+                    }.sortedWith(
+                        compareBy<Item> { item -> item.listId }
+                            .thenBy { item -> item.name?.substringAfter("Item ")?.toInt() }
+                    )
+                    // if we're unsure if the name will always contain "Item" in front, we can
+                    // use the sort method below, but it will sort Item 28, then Item 280, then Item 29.
+                    // With pure string values, this sort method would be preferred.
+                    // Can also do some Regex matching to remove ANY string, but it seemed
+                    // outside the scope of this demo project.
+                    /*
+                    .sortedWith(
+                        compareBy<Item> { item -> item.listId }
+                            .thenBy { item -> item.name } )
+                    */
                 )
             }
         } else {
