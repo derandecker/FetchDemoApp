@@ -36,6 +36,9 @@ class MainScreenViewModel : ViewModel() {
     init {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
+                // would normally set this up as a Singleton as part of DI.
+                // set up in ViewModel for time savings and due to the simplicity of
+                // this project.
                 val contentType = "application/json".toMediaType()
                 val retrofit = Retrofit.Builder()
                     .baseUrl(BASE_URL)
@@ -49,6 +52,8 @@ class MainScreenViewModel : ViewModel() {
 
     @OptIn(ExperimentalSerializationApi::class)
     private suspend fun loadData() {
+        // would normally do this in a repo, but as noted above, due to simplicity
+        // of this project, doing network call here in ViewModel.
         val response = try {
             networkService.getItems()
         } catch (e: UnknownHostException) {
@@ -76,13 +81,12 @@ class MainScreenViewModel : ViewModel() {
         val body = response.body()
         if (response.isSuccessful && body != null) {
             _uiState.update {
-                    it.copy(
-                        loadingState = LoadingState.Success,
-                        itemList = body
-                    )
-                }
+                it.copy(
+                    loadingState = LoadingState.Success,
+                    itemList = body
+                )
             }
-        else {
+        } else {
             _uiState.update {
                 it.copy(
                     loadingState = LoadingState.Error("Failed to download data. Error code ${response.code()}")
