@@ -61,4 +61,6 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.converter.kotlinx.serialization)
+    implementation(libs.okhttp)
+
 }
