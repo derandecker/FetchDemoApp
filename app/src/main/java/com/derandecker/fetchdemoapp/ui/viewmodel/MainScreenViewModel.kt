@@ -25,7 +25,7 @@ class MainScreenViewModel : ViewModel() {
 
     data class UiState(
         val loadingState: LoadingState = LoadingState.Loading,
-        val itemList: List<Item> = emptyList()
+        val itemList: List<Item> = listOf()
     )
 
     private val _uiState = MutableStateFlow(UiState())
@@ -88,7 +88,7 @@ class MainScreenViewModel : ViewModel() {
                     }.sortedWith(
                         compareBy<Item> { item -> item.listId }
                             .thenBy { item -> item.name?.substringAfter("Item ")?.toInt() }
-                    )
+                    ).toMutableList()
                     // if we're unsure if the name will always contain "Item" in front, we can
                     // use the sort method below, but it will sort Item 28, then Item 280, then Item 29.
                     // With pure string values, this sort method would be preferred.
@@ -107,6 +107,18 @@ class MainScreenViewModel : ViewModel() {
                     loadingState = LoadingState.Error("Failed to download data. Error code ${response.code()}")
                 )
             }
+        }
+    }
+
+    fun deleteItem(itemId: Int) {
+        val updatedList = _uiState.value.itemList.toMutableList()
+        updatedList.removeIf {
+            it.id == itemId
+        }
+        _uiState.update {
+            it.copy(
+                itemList = updatedList
+            )
         }
     }
 }

@@ -2,6 +2,7 @@ package com.derandecker.fetchdemoapp.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -57,7 +59,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
 
         LoadingState.Success -> SuccessScreen(
             modifier = modifier.padding(start = 16.dp, end = 16.dp),
-            groupedList = groupedList
+            groupedList = groupedList,
+            onDelete = { itemId -> viewModel.deleteItem(itemId) }
         )
     }
 }
@@ -85,7 +88,11 @@ fun ErrorScreen(modifier: Modifier, message: String) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun SuccessScreen(modifier: Modifier, groupedList: Map<Int?, List<Item>>) {
+fun SuccessScreen(
+    modifier: Modifier,
+    groupedList: Map<Int?, List<Item>>,
+    onDelete: (Int) -> Unit
+    ) {
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center
@@ -109,7 +116,15 @@ fun SuccessScreen(modifier: Modifier, groupedList: Map<Int?, List<Item>>) {
             items(
                 items = itemsInListId, key = { item -> item.id ?: UUID.randomUUID() },
             ) { item ->
-                Text("${item.name}")
+                Card {
+                    Text(
+                        modifier = modifier.clickable {
+                            item.id?.let { onDelete(it) }
+                        },
+                        text =
+                            "${item.name}"
+                    )
+                }
             }
         }
     }
